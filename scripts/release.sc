@@ -1,4 +1,6 @@
-import $ivy.`com.lihaoyi:ammonite-ops_2.13:2.4.1`
+#!/usr/bin/env -S scala-cli shebang -S 2.13
+
+//> using dep com.lihaoyi::ammonite-ops:2.4.1
 import ammonite.ops._
 
 import scala.util.Try
@@ -20,8 +22,8 @@ case class DemoRepo(repo: String, name: String)(implicit path: os.Path) {
         Some(s"""addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.13.1")""")
       case line if line.contains(s"""addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" %""") =>
         Some(s"""addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.21.1")""")
-      case line if line.contains(s"""addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" %""") =>
-        Some(s"""addSbtPlugin("org.scalablytyped.converter" % "sbt-converter" % "$version")""")
+      case line if line.contains(s"""addSbtPlugin("jp.kurusugawa.scalablytyped" % "sbt-converter" %""") =>
+        Some(s"""addSbtPlugin("jp.kurusugawa.scalablytyped" % "sbt-converter" % "$version")""")
       case line if line.contains("resolvers +=") =>
         None
       case line => Some(line)
@@ -41,13 +43,16 @@ case class DemoRepo(repo: String, name: String)(implicit path: os.Path) {
 }
 
 object DemoRepo {
-  val repos = List("Demos", "ScalaJsReactDemos", "SlinkyDemos")
+  // no demo
+  val repos = List()
+  // original
+  //  val repos = List("Demos", "ScalaJsReactDemos", "SlinkyDemos")
 
   def initialized(in: os.Path): List[DemoRepo] = {
     os.makeDir.all(in)
 
     repos.map { name =>
-      val repo     = s"git@github.com:ScalablyTyped/$name.git"
+      val repo     = s"git@github.com:kurusugawa-computer/$name.git"
       val repoPath = in / name
       if (!os.exists(repoPath)) {
         %.git("clone", repo)(in)
@@ -72,7 +77,7 @@ case class Repo(version: String)(implicit val wd: os.Path) {
   }
 
   def cleanLocal() = {
-    val existing = os.walk(os.home / ".ivy2" / "local" / "org.scalablytyped.converter").filter(_.last == version)
+    val existing = os.walk(os.home / ".ivy2" / "local" / "jp.kurusugawa.scalablytyped").filter(_.last == version)
     if (existing.nonEmpty) {
       println(s"Cleaning existing locally published")
       existing.foreach(println)
@@ -84,7 +89,7 @@ case class Repo(version: String)(implicit val wd: os.Path) {
     %("sbt", "clean", "publishLocal", "test", "scripted")
 
   def publish() = {
-    %("sbt", "ci-release", "docs/mdoc")
+    %("sbt", "publish", "docs/mdoc")
     %("yarn")(wd / "website")
     %("yarn", "publish-gh-pages")(wd / "website")
     %.git("push", "origin", "HEAD")
@@ -95,30 +100,27 @@ case class Repo(version: String)(implicit val wd: os.Path) {
 def mustHave(name: String) =
   sys.env.getOrElse(name, sys.error(s"Set env $name"))
 
-@main
-def doRelease(version: String): Int = {
-  mustHave("PGP_PASSPHRASE")
-  mustHave("PGP_SECRET")
-  mustHave("SONATYPE_PASSWORD")
-  mustHave("SONATYPE_USERNAME")
-  mustHave("CI_COMMIT_TAG") // just set to true
-
-  val repo = Repo(version)(os.pwd)
+def doRelease(version: String): Unit = {
+  val repo = Repo(version)(os.pwd / os.up)
   repo.assertClean()
   repo.refreshTag()
   repo.cleanLocal()
   repo.publishLocalScripted()
-  val demoRepos = DemoRepo.initialized(os.Path("/tmp/st-release-temp"))
-  demoRepos.foreach(_.update())
-  demoRepos.foreach(_.build(version))
-  demoRepos.foreach(_.pushCache())
+// The demo site is currently unavailable
+//  val demoRepos = DemoRepo.initialized(os.Path("/tmp/st-release-temp"))
+//  demoRepos.foreach(_.update())
+//  demoRepos.foreach(_.build(version))
+//  demoRepos.foreach(_.pushCache())
+  
   // at this point we're ready to push everything
   repo.assertClean()
   repo.publish()
-  // wait for libraries to be accessible through maven central
-  println("Sleeping two hours before pushing demos, in order for ST to propagate through maven central")
-  val Hour = 60 * 60 * 1000
-  Thread.sleep(2 * Hour)
-  demoRepos.foreach(_.pushGit())
-  0
+//  demoRepos.foreach(_.pushGit())
+}
+
+if(args.isEmpty) {
+  println("Usage: release.sc <version>")
+  Runtime.getRuntime.exit(1)
+} else {
+  doRelease(args.head) 
 }

@@ -1,9 +1,12 @@
 import scala.sys.process.stringToProcess
 
-lazy val latestTag = "git tag -l --sort=committerdate".!!.linesIterator.toVector.last.drop( /* 'v' */ 1)
+lazy val latestTag =
+  "git tag -l --sort=committerdate".!!.linesIterator.toVector.lastOption.fold("no-version")(_.drop( /* 'v' */ 1))
 
 // BSP setup to use with bloop
 Global / bloopExportJarClassifiers := Some(Set("sources"))
+
+ThisBuild / dynverSonatypeSnapshots := true
 
 // bloop hasn't upgraded to scala-xml 2 yet
 ThisBuild / libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
@@ -122,11 +125,19 @@ lazy val root = project
 
 lazy val baseSettings: Project => Project =
   _.settings(
-    sonatypeCredentialHost := Sonatype.sonatype01,
-    sonatypeProfileName := "org.scalablytyped",
-    organization := "org.scalablytyped.converter",
+    credentials += Credentials(Path.userHome / ".sbt" / "kurusugawa.credentials"),
+    publishTo := {
+      val suffix =
+        if (isVersionStable.value) {
+          "release"
+        } else {
+          "snapshot"
+        }
+      Some("kurusugawa nexus".at(s"https://kurusugawa.jp/nexus3/content/repositories/KRSPUBLIC-$suffix/"))
+    },
+    organization := "jp.kurusugawa.scalablytyped",
     licenses += ("GPL-3.0", url("https://opensource.org/licenses/GPL-3.0")),
-    homepage := Some(url("https://github.com/ScalablyTyped/Converter")),
+    homepage := Some(url("https://github.com/kurusugawa-computer/ScalablyTypedConverter")),
     developers := List(
       Developer(
         "oyvindberg",
@@ -135,7 +146,6 @@ lazy val baseSettings: Project => Project =
         url("https://github.com/oyvindberg"),
       ),
     ),
-    pgpSigningKey := Some("763825CAF9034C05E56A042EF5BAF6416BD9F936"),
     scalaVersion := "2.12.18",
     scalacOptions ~= (_.filterNot(Set("-Ywarn-unused:imports", "-Ywarn-unused:params", "-Xfatal-warnings"))),
     /* disable scaladoc */
