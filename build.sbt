@@ -3,6 +3,7 @@ import scala.sys.process.stringToProcess
 lazy val latestTag =
   "git tag -l --sort=committerdate".!!.linesIterator.toVector.lastOption.fold("no-version")(_.drop( /* 'v' */ 1))
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
 // BSP setup to use with bloop
 Global / bloopExportJarClassifiers := Some(Set("sources"))
 
