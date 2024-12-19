@@ -4,6 +4,9 @@ on:
     branches: [ 'develop-kci' ]
   push:
     branches: [ 'develop-kci' ]
+  merge_group:
+    types: [checks_requested]
+    branches: [ 'develop-kci' ]
 
 jobs:
   scalafmt:
