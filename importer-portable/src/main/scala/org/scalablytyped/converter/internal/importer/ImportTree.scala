@@ -259,6 +259,11 @@ class ImportTree(
         val importedName    = importedCp.parts.last
         val importedTparams = tparams.map(typeParam(scope, importName))
 
+        def writeDebug(msg: String): Unit =
+          if (importedName.value == "BuiltinIteratorReturn") {
+            println(s"====== ${msg}")
+          }
+
         def warning(explain: String) =
           cs ++ Comments(
             s"""/** NOTE: Conditional type definitions are impossible to translate to Scala.
@@ -306,6 +311,8 @@ class ImportTree(
           }
 
         val approximationCandidates = findCandidates(tpe, depth = 0, inferred = Empty)
+        writeDebug(s"tpe: ${tpe}")
+        writeDebug(s"candidates: ${approximationCandidates.mkString("\n")}")
 
         val chosen: Option[TypeRef] =
           approximationCandidates
