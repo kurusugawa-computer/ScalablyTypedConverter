@@ -25,6 +25,6 @@ lazy val lib =
         "@types/express" -> "4.17.2",
       ),
       stMinimize := Selection.AllExcept("express", "node"),
-      stStdlib := List("es5"),
+      stStdlib := List("es2015"),
       stOutputPackage := "mytypings",
     )
