@@ -8,7 +8,7 @@ lazy val testProject =
         "@types/express" -> "4.17.2",
       ),
       stMinimize := Selection.AllExcept("express", "node"),
-      stStdlib := List("es5"),
+      stStdlib := List("es2015"),
       scalaJSUseMainModuleInitializer := true,
       scalaVersion := "2.13.2",
       organization := "com.olvind",
