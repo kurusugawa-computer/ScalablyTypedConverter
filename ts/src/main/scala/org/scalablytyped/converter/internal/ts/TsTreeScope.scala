@@ -72,7 +72,7 @@ sealed trait TsTreeScope {
       qname:          TsQIdent,
       skipValidation: Boolean = false,
   ): IArray[(T, TsTreeScope)] = {
-    if ((TsQIdent.Primitive(qname)) || isAbstract(qname))
+    if (TsQIdent.Primitive(qname) || isAbstract(qname))
       return Empty
 
     val res = lookupInternal(picker, qname.parts, LoopDetector.initial)
@@ -108,7 +108,8 @@ sealed trait TsTreeScope {
             while (shouldSkip(skipScopes)) skipScopes = skipScopes.`..`
 
             skipScopes.lookupImpl(picker, rest, newLoopDetector)
-          case other => lookupImpl(picker, other, newLoopDetector)
+          case IArray.headTail(TsIdentSimple("globalThis"), rest) => root.lookupImpl(picker, rest, newLoopDetector)
+          case other                                              => lookupImpl(picker, other, newLoopDetector)
         }
     }
 
