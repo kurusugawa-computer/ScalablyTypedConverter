@@ -71,7 +71,7 @@ trait ImporterTest extends AnyFunSuite with ImporterHarness with ParallelTestExe
   test("recharts")(assertImportsOk("recharts", pedantic                             = true))
   test("firebase")(assertImportsOk("firebase", pedantic                             = true))
   test("prisma")(assertImportsOk("prisma", pedantic                                 = true))
-  test("node")(assertImportsOk("node", pedantic                                     = false))
+  test("node")(assertImportsOk("node", pedantic                                     = true))
 
   test("material-ui-slinky")(
     assertImportsOk("material-ui", pedantic = true, flavour = Slinky),
