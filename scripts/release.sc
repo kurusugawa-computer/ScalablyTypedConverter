@@ -101,7 +101,8 @@ def mustHave(name: String) =
   sys.env.getOrElse(name, sys.error(s"Set env $name"))
 
 def doRelease(version: String): Unit = {
-  val repo = Repo(version)(os.pwd / os.up)
+  val projectDir = os.pwd / os.RelPath(scriptPath) / os.up / os.up
+  val repo = Repo(version)(projectDir)
   repo.assertClean()
   repo.refreshTag()
   repo.cleanLocal()
