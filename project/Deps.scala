@@ -5,7 +5,7 @@ object Deps {
   val ammoniteOps         = "com.lihaoyi" %% "ammonite-ops" % "2.4.1"
   val osLib               = "com.lihaoyi" %% "os-lib" % "0.11.5"
   val sourcecode          = "com.lihaoyi" %% "sourcecode" % "0.4.4"
-  val scalatest           = "org.scalatest" %% "scalatest" % "3.2.19"
+  val scalatest           = "org.scalatest" %% "scalatest" % "3.2.20"
   val fansi               = "com.lihaoyi" %% "fansi" % "0.5.1"
   val scalaXml            = "org.scala-lang.modules" %% "scala-xml" % "2.4.0"
   val scopt               = "com.github.scopt" %% "scopt" % "4.1.0"
@@ -16,8 +16,8 @@ object Deps {
 
   val circe: Seq[ModuleID] =
     Seq(
-      "io.circe" %% "circe-generic" % "0.14.14",
-      "io.circe" %% "circe-parser" % "0.14.14",
+      "io.circe" %% "circe-generic" % "0.14.15",
+      "io.circe" %% "circe-parser" % "0.14.15",
       "io.circe" %% "circe-jackson212" % "0.14.2",
     )
 }
