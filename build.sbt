@@ -181,7 +181,7 @@ lazy val baseSettings: Project => Project =
     ),
     scalaVersion := scala212,
     crossScalaVersions := Seq(scala212, scala3),
-    scalacOptions ~= (_.filterNot(Set("-Ywarn-unused:imports", "-Ywarn-unused:params", "-Xfatal-warnings"))),
+    scalacOptions ~= (_.filterNot(Set("-Ywarn-unused:imports", "-Ywarn-unused:params", "-Xfatal-warnings", "-Werror"))),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((3, _)) =>
