@@ -28,7 +28,7 @@ package object logging {
     new WriterLogger(new AppendableLogger(writer, pattern, ctx))
 
   def stringWriter(pattern: Pattern = Pattern.default, ctx: Ctx = emptyContext): Logger[StringWriter] =
-    writer(new StringWriter)
+    writer(new StringWriter, pattern, ctx)
 
   def storing(ctx: Ctx = emptyContext): Logger[Array[Stored]] =
     new StoringLogger(new Logger.Store, ctx)

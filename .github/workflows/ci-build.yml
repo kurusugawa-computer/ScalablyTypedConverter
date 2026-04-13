@@ -70,7 +70,7 @@ jobs:
         run: |
           if [[ "${{ matrix.scala }}" == "3" ]]; then
             # For Scala 3, test all modules except sbt-converter (which is SBT 1.x only - Scala 2.12)
-            sbt "++3.3.4" \
+            sbt "++3.3.7" \
               "logging/test" \
               "core/test" \
               "phases/test" \
@@ -81,7 +81,7 @@ jobs:
               "cli/test"
           else
             # For Scala 2.12, test everything
-            sbt "++2.12.20" test
+            sbt "++2.12.21" test
           fi
         shell: bash
         env:
