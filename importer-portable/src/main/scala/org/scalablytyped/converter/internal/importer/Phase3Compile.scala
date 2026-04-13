@@ -50,19 +50,19 @@ class Phase3Compile(
   ): PhaseRes[LibTsSource, PublishedSbtProject] = {
     val logger = _logger.withContext("flavour", flavour.toString)
 
-    getDeps(lib.dependencies.keys.map(x => x: LibTsSource).to[SortedSet]).flatMap {
+    getDeps(SortedSet.empty[LibTsSource] ++ lib.dependencies.keys.map(x => x: LibTsSource)).flatMap {
       case PublishedSbtProject.Unpack(deps) =>
         val scope = new TreeScope.Root(
           libName       = lib.scalaName,
-          _dependencies = lib.dependencies.map { case (_, lib) => lib.scalaName -> lib.packageTree },
+          _dependencies = LibScalaJs.allDependencies(lib.dependencies.values),
           logger        = logger,
           pedantic      = false,
           outputPkg     = flavour.outputPkg,
         )
 
         val scalaFiles    = Printer(scope, new ParentsResolver, lib.packageTree, flavour.outputPkg, versions.scala)
-        val sourcesDir    = os.RelPath("src") / 'main / 'scala
-        val resourcesDir  = os.RelPath("src") / 'main / 'resources
+        val sourcesDir    = os.RelPath("src") / "main" / "scala"
+        val resourcesDir  = os.RelPath("src") / "main" / "resources"
         val metadataOpt   = Try(Await.result(metadataFetcher(lib.source, logger), 2.seconds)).toOption.flatten
         val compilerPaths = CompilerPaths.of(versions, targetFolder, lib.libName)
         val resources: IArray[(os.RelPath, String)] =
@@ -120,7 +120,7 @@ class Phase3Compile(
             }
 
             val jarDeps: Set[Compiler.InternalDep] =
-              deps.values.to[Set].map(x => Compiler.InternalDepJar(x.localIvyFiles.jarFile._2))
+              deps.values.toSet[PublishedSbtProject].map(x => Compiler.InternalDepJar(x.localIvyFiles.jarFile._2))
 
             if (files.exists(compilerPaths.resourcesDir))
               os.copy.over(from = compilerPaths.resourcesDir, to = compilerPaths.classesDir, replaceExisting = true)

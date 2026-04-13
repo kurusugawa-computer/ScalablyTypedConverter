@@ -49,7 +49,7 @@ class Phase2ToScalaJs(
 
       val scope = new TreeScope.Root(
         libName       = scalaName,
-        _dependencies = scalaDeps.map { case (_, l) => l.scalaName -> l.packageTree },
+        _dependencies = LibScalaJs.allDependencies(scalaDeps.values),
         logger        = logger,
         pedantic      = pedantic,
         outputPkg     = outputPkg,
@@ -122,7 +122,7 @@ class Phase2ToScalaJs(
 
   private def garbageCollectLibs(lib: LibTs): SortedSet[LibTsSource] = {
     val all: SortedSet[LibTsSource] =
-      lib.transitiveDependencies.keys.map(x => x: LibTsSource).to[SortedSet]
+      SortedSet.empty[LibTsSource] ++ lib.transitiveDependencies.keys.map(x => x: LibTsSource)
 
     val referenced: Set[TsIdentLibrary] =
       TsTreeTraverse.collect(lib.parsed) { case x: ts.TsIdentLibrary => x }.toSet

@@ -20,10 +20,10 @@ class PhaseFlavour(flavour: FlavourImpl, maybePrivateWithin: Option[Name])
   ): PhaseRes[LibTsSource, LibScalaJs] = {
     val logger = _logger.withContext("flavour", flavour.toString)
 
-    getDeps((lib.dependencies.keys: Iterable[LibTsSource]).to[SortedSet]).map { deps =>
+    getDeps(SortedSet.empty[LibTsSource] ++ (lib.dependencies.keys: Iterable[LibTsSource])).map { deps =>
       val originalScope = new TreeScope.Root(
         libName       = lib.scalaName,
-        _dependencies = lib.dependencies.map { case (_, lib) => lib.scalaName -> lib.packageTree },
+        _dependencies = LibScalaJs.allDependencies(lib.dependencies.values),
         logger        = logger,
         pedantic      = false,
         outputPkg     = flavour.outputPkg,
